@@ -1,20 +1,21 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-	<name>upo_laser_people_detector</name>
+	<name>upo_laser_people_msgs</name>
 	<version>0.1.0</version>
-	<description>People detection using 2D LiDAR and Deep Learning</description>
+	<description>Messages used by upo_laser_people_detector.</description>
 	<maintainer email="famozur@upo.es">famozur</maintainer>
 	<license>MIT</license>
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
+	<buildtool_depend>rosidl_default_generators</buildtool_depend>
 
-	<depend>rclcpp</depend>
-	<depend>rclcpp_components</depend>
+	<depend>geometry_msgs</depend>
 	<depend>std_msgs</depend>
-	<depend>sensor_msgs</depend>
-	<depend>visualization_msgs</depend>
-	<depend>upo_laser_people_msgs</depend>
+
+	<exec_depend>rosidl_default_runtime</exec_depend>
+
+	<member_of_group>rosidl_interface_packages</member_of_group>
 
 	<export>
 		<build_type>ament_cmake</build_type>

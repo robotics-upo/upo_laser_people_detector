@@ -10,10 +10,15 @@
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/laser_scan.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
+#include <upo_laser_people_msgs/msg/person_detection_list.hpp>
 
 #include <onnxruntime_cxx_api.h>
 
 namespace upo_laser_people_detector {
+
+using upo_laser_people_msgs::msg::PersonDetection;
+using upo_laser_people_msgs::msg::PersonDetectionList;
+using visualization_msgs::msg::MarkerArray;
 
 namespace {
 
@@ -173,7 +178,8 @@ class LaserModelHost : public rclcpp::Node {
 	std::optional<LaserModel> m_model;
 
 	rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr m_sub{};
-	std::shared_ptr<rclcpp::Publisher<visualization_msgs::msg::MarkerArray>> m_pub{};
+	std::shared_ptr<rclcpp::Publisher<PersonDetectionList>> m_pubOutput{};
+	std::shared_ptr<rclcpp::Publisher<MarkerArray>> m_pubMarker{};
 
 	static void OrtRosLogging(
 		void* param, OrtLoggingLevel severity,
@@ -189,16 +195,37 @@ class LaserModelHost : public rclcpp::Node {
 	{
 		auto people = m_model->infer(msg);
 
-		auto out = std::make_unique<visualization_msgs::msg::MarkerArray>();
+		{
+			auto out = std::make_unique<PersonDetectionList>();
+			out->header = msg.header;
 
-		out->markers.emplace_back(makeEmptyMarker(msg.header.frame_id));
+			for (size_t i = 0; i < people.size(); i ++) {
+				auto& p = people[i];
 
-		for (size_t i = 0; i < people.size(); i ++) {
-			auto& p = people[i];
-			out->markers.emplace_back(makePersonMarker(msg.header.frame_id, 1+i, p[1], p[2], 0.4f));
+				PersonDetection det;
+				det.type = PersonDetection::TYPE_UNSPECIFIED;
+				det.score = p[0];
+				det.position.x = p[1];
+				det.position.y = p[2];
+
+				out->detections.emplace_back(std::move(det));
+			}
+
+			m_pubOutput->publish(std::move(out));
 		}
 
-		m_pub->publish(std::move(out));
+		{
+			auto out = std::make_unique<MarkerArray>();
+
+			out->markers.emplace_back(makeEmptyMarker(msg.header.frame_id));
+
+			for (size_t i = 0; i < people.size(); i ++) {
+				auto& p = people[i];
+				out->markers.emplace_back(makePersonMarker(msg.header.frame_id, 1+i, p[1], p[2], 0.4f));
+			}
+
+			m_pubMarker->publish(std::move(out));
+		}
 	}
 
 public:
@@ -208,8 +235,9 @@ public:
 	{
 		auto model_file = declare_parameter<std::string>("model_file");
 
-		auto laser_topic = declare_parameter<std::string>("laser_topic", "/scanfront");
-		auto marker_topic = declare_parameter<std::string>("marker_topic", "detected_people");
+		auto laser_topic  = declare_parameter<std::string>("laser_topic",  "/scanfront");
+		auto output_topic = declare_parameter<std::string>("output_topic", "detected_people");
+		auto marker_topic = declare_parameter<std::string>("marker_topic", "detected_people_markers");
 
 		auto near   = declare_parameter<float>("scan_near",       0.02f);
 		auto far    = declare_parameter<float>("scan_far",        10.0f);
@@ -224,7 +252,8 @@ public:
 			laser_topic, 10, std::bind(&LaserModelHost::onLaserScan, this, _1)
 		);
 
-		m_pub = create_publisher<visualization_msgs::msg::MarkerArray>(marker_topic, 10);
+		m_pubOutput = create_publisher<PersonDetectionList>(output_topic, 10);
+		m_pubMarker = create_publisher<MarkerArray>(marker_topic, 10);
 	}
 
 };

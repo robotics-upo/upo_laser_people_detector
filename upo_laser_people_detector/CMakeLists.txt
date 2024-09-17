@@ -12,6 +12,7 @@ find_package(rclcpp_components REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
+find_package(upo_laser_people_msgs REQUIRED)
 
 find_package(Python3 REQUIRED COMPONENTS Development.Embed NumPy)
 find_package(pybind11 REQUIRED)
@@ -36,6 +37,7 @@ ament_target_dependencies(lasermodelhost PUBLIC
 	std_msgs
 	sensor_msgs
 	visualization_msgs
+	upo_laser_people_msgs
 )
 
 rclcpp_components_register_node(lasermodelhost
