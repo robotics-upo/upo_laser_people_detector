@@ -2,6 +2,12 @@
 
 This ROS package contains nodes for detecting people using 2D LiDAR.
 
+See also:
+
+- [2D Laser People Benchmark](https://github.com/robotics-upo/2DLaserPeopleBenchmark) (including LFE-PPN and LFE-Peaks source code)
+- [FROG dataset](https://robotics.upo.es/datasets/frog/laser2d_people/)
+- [Paper (arXiv)](https://arxiv.org/abs/2306.08531)
+
 ## System requirements
 
 - Ubuntu 22.04 Jammy
@@ -38,3 +44,24 @@ List of parameters:
 
 - [LFE-PPN](https://robotics.upo.es/~famozur/onnx/LFE-PPN.onnx) (for use with `lasermodelhost`)
 - [LFE-Peaks](https://robotics.upo.es/~famozur/onnx/LFE-Peaks.onnx) (for use with `lasermodelhost_peaks`)
+
+## Reference
+
+```
+@misc{frog2023,
+	author = {Fernando Amodeo and Noé Pérez-Higueras and Luis Merino and Fernando Caballero},
+	title = {FROG: A new people detection dataset for knee-high 2D range finders},
+	year = {2023},
+	eprint = {arXiv:2306.08531},
+}
+```
+
+## Acknowledgements
+
+![](logos/junta-and.png) ![](logos/minci.png)
+
+This work is partially funded by the Programa Operativo FEDER Andalucía 2014-2020,
+Consejería de Economía, Conocimiento y Universidades (DeepBot, PY20_00817) and by
+the projects NHoA PLEC2021-007868 and NORDIC TED2021-132476B-I00,
+funded by MCIN/AEI/10.13039/501100011033 and the European Union
+"NextGenerationEU"/"PRTR".
